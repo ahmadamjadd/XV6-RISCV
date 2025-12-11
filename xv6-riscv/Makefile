@@ -145,7 +145,10 @@ UPROGS=\
 	$U/_dorphan\
 	$U/_test\
 	$U/_kmem\
-	$U/_sleep
+	$U/_sleep\
+	$U/_sixfive\
+	$U/_memdump\
+	$U/_find
 fs.img: mkfs/mkfs README $(UPROGS)
 	mkfs/mkfs fs.img README $(UPROGS)
 
