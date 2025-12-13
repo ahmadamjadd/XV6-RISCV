@@ -110,3 +110,8 @@ kmemfree:
  li a7, SYS_kmemfree
  ecall
  ret
+.global symlink
+symlink:
+ li a7, SYS_symlink
+ ecall
+ ret

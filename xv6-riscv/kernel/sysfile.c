@@ -323,15 +323,50 @@ sys_open(void)
       return -1;
     }
   } else {
+    // --- NEW LOGIC STARTS HERE ---
+    
+    // 1. Get the Inode
     if((ip = namei(path)) == 0){
       end_op();
       return -1;
     }
-    ilock(ip);
-    if(ip->type == T_DIR && omode != O_RDONLY){
-      iunlockput(ip);
-      end_op();
-      return -1;
+
+    ilock(ip); // Lock it to check type
+
+    // 2. Check if it is a Symlink AND we are allowed to follow it
+    // We loop up to 10 times to handle nested links (A->B->C)
+    if(ip->type == T_SYMLINK && !(omode & O_NOFOLLOW)){
+      int depth = 0;
+      
+      while(ip->type == T_SYMLINK){
+        // A. Check cycle limit
+        if(depth >= 10){
+          iunlockput(ip);
+          end_op();
+          return -1; // Too many links (loop detected)
+        }
+
+        // B. Read the target path from the symlink's data
+        // We reuse the 'path' variable buffer to store the new target
+        if(readi(ip, 0, (uint64)path, 0, MAXPATH) < 0){
+          iunlockput(ip);
+          end_op();
+          return -1;
+        }
+        
+        // C. Release the current inode (the link itself)
+        iunlockput(ip);
+
+        // D. Look up the new path (the target)
+        if((ip = namei(path)) == 0){
+          end_op(); // Target doesn't exist
+          return -1; 
+        }
+        
+        // Lock the new inode for the next iteration check
+        ilock(ip);
+        depth++;
+      }
     }
   }
 
@@ -501,5 +536,38 @@ sys_pipe(void)
     fileclose(wf);
     return -1;
   }
+  return 0;
+}
+
+// kernel/sysfile.c
+
+uint64
+sys_symlink(void)
+{
+  char target[MAXPATH], path[MAXPATH];
+  struct inode *ip;
+
+  // 1. Fetch the two string arguments from the user
+  if(argstr(0, target, MAXPATH) < 0 || argstr(1, path, MAXPATH) < 0)
+    return -1;
+
+  begin_op(); // Start a disk transaction
+
+  // 2. Create a new inode of type T_SYMLINK at 'path'
+  ip = create(path, T_SYMLINK, 0, 0);
+  if(ip == 0){
+    end_op();
+    return -1;
+  }
+
+  // 3. Write the 'target' path into the inode's data block
+  if(writei(ip, 0, (uint64)target, 0, strlen(target)) != strlen(target)){
+    iunlockput(ip);
+    end_op();
+    return -1;
+  }
+
+  iunlockput(ip); // Unlock and release the inode
+  end_op();       // Commit the transaction
   return 0;
 }

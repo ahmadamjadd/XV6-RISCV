@@ -3,6 +3,10 @@
 struct stat;
 
 // system calls
+// a7 has the syscall id
+// args are passed in a registers. So, arg0 in a0..argn in an
+// return value will appear in a0
+
 int fork(void);
 int exit(int) __attribute__((noreturn));
 int wait(int*);
@@ -25,6 +29,7 @@ char* sys_sbrk(int,int);
 int pause(int);
 int uptime(void);
 int kmemfree(void);
+int symlink(char*, char*);
 
 // ulib.c
 int stat(const char*, struct stat*);

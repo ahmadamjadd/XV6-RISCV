@@ -1,15 +1,14 @@
 #include "kernel/types.h"
 #include "user/user.h"
 
-int
-main(int argc, char *argv[])
+
+int main(int argc, char *argv[])
 {
-  if(argc < 2){
-    fprintf(2, "Error: No argument passed\n");
-    exit(1);
+  if (argc < 2)
+  {
+    printf("USAGE: sleep <ticks>");
   }
   int ticks = atoi(argv[1]);
-  pause(ticks);  
 
-  exit(0);
+  pause(ticks);
 }

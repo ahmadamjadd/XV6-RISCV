@@ -1,1 +1,2 @@
-user/memdump.o: user/memdump.c kernel/types.h kernel/stat.h user/user.h
+user/memdump.o: user/memdump.c user/../kernel/types.h \
+ user/../kernel/fcntl.h user/user.h

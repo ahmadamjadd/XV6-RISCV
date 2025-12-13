@@ -1,2 +1,2 @@
-user/ls.o: user/ls.c kernel/types.h kernel/stat.h user/user.h kernel/fs.h \
- kernel/fcntl.h
+user/ls.o: user/ls.c user/../kernel/types.h user/../kernel/stat.h \
+ user/../kernel/fs.h user/../kernel/fcntl.h user/user.h

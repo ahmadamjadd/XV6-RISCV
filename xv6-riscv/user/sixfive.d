@@ -1,2 +1,2 @@
-user/sixfive.o: user/sixfive.c kernel/types.h kernel/stat.h user/user.h \
- kernel/fcntl.h
+user/sixfive.o: user/sixfive.c user/../kernel/types.h \
+ user/../kernel/fcntl.h user/user.h

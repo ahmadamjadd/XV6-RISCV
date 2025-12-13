@@ -108,8 +108,8 @@ sys_uptime(void)
   return xticks;
 }
 
-uint64
-sys_kmemfree(void)
+
+uint64 sys_kmemfree(void)
 {
   return (uint64) kmemfree();
 }
